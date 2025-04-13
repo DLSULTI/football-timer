@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Timer Football</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #1e1e1e;
+            color: white;
+            margin: 0;
+            flex-direction: column;
+            position: relative;
+        }
+        .timer {
+            font-size: 3rem;
+            text-align: center;
+            margin-top: 20px;
+        }
+        .button-container {
+            position: absolute;
+            bottom: 20px;
+            display: flex;
+            justify-content: center;
+            width: 100%;
+        }
+        .btn {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            border: none;
+            color: white;
+            font-size: 1rem;
+            cursor: pointer;
+            border-radius: 5px;
+            margin: 0 10px;
+        }
+        .btn:disabled {
+            background-color: #999;
+        }
+    </style>
+</head>
+<body>
+    <div class="timer" id="timer">00:00</div>
+    <div class="button-container">
+        <button class="btn" id="startBtn">Démarrer</button>
+        <button class="btn" id="resetBtn" disabled>Réinitialiser</button>
+    </div>
+
+    <script>
+        let seconds = 0;
+        let isRunning = false;
+        let isFirstHalf = true;
+        let timerInterval = null;
+
+        const timerDisplay = document.getElementById('timer');
+        const startBtn = document.getElementById('startBtn');
+        const resetBtn = document.getElementById('resetBtn');
+
+        function formatTime(time) {
+            return time < 10 ? '0' + time : time;
+        }
+
+        function updateTimer() {
+            const mins = Math.floor(seconds / 60);
+            const secs = seconds % 60;
+            timerDisplay.textContent = `${formatTime(mins)}:${formatTime(secs)}`;
+
+            if (isFirstHalf && seconds >= 2700) {
+                clearInterval(timerInterval);
+                startBtn.textContent = 'Démarrer 2ème Mi-Temps';
+                isRunning = false;
+                isFirstHalf = false;
+                return;
+            }
+
+            if (!isFirstHalf && seconds >= 5400) {
+                clearInterval(timerInterval);
+                startBtn.textContent = 'Terminé';
+                isRunning = false;
+                return;
+            }
+
+            seconds++;
+        }
+
+        function startTimer() {
+            if (!isRunning) {
+                timerInterval = setInterval(updateTimer, 1000);
+                isRunning = true;
+                startBtn.textContent = 'Pause';
+                resetBtn.disabled = false;
+            } else {
+                clearInterval(timerInterval);
+                isRunning = false;
+                startBtn.textContent = 'Reprendre';
+            }
+        }
+
+        function resetTimer() {
+            clearInterval(timerInterval);
+            seconds = 0;
+            isRunning = false;
+            isFirstHalf = true;
+            timerDisplay.textContent = '00:00';
+            startBtn.textContent = 'Démarrer';
+            resetBtn.disabled = true;
+        }
+
+        startBtn.addEventListener('click', startTimer);
+        resetBtn.addEventListener('click', resetTimer);
+
+        // OBS compatibilité : forcer rafraîchissement même sans interaction
+        setInterval(() => {
+            if (isRunning) updateTimer();
+        }, 1000);
+    </script>
+</body>
+</html>
+
+

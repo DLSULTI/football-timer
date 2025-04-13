@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Timer Football - Prolongations</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #1e1e1e;
+            color: white;
+            margin: 0;
+            flex-direction: column;
+            position: relative;
+        }
+        .timer {
+            font-size: 3rem;
+            text-align: center;
+            margin-top: 20px;
+        }
+        .button-container {
+            position: absolute;
+            bottom: 20px;
+            display: flex;
+            justify-content: center;
+            width: 100%;
+        }
+        .btn {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            border: none;
+            color: white;
+            font-size: 1rem;
+            cursor: pointer;
+            border-radius: 5px;
+            margin: 0 10px;
+        }
+        .btn:disabled {
+            background-color: #999;
+        }
+    </style>
+</head>
+<body>
+    <div class="timer" id="timer">00:00</div>
+    <div class="button-container">
+        <button class="btn" id="startBtn">Démarrer</button>
+        <button class="btn" id="resetBtn" disabled>Réinitialiser</button>
+    </div>
+
+    <script>
+        let timerInterval;
+        let seconds = 5400; // On commence à 90 minutes (5400 secondes)
+        let isRunning = false;
+        let isFirstExtraTime = true; // Variable pour savoir si on est dans la première période des prolongations
+
+        const timerDisplay = document.getElementById('timer');
+        const startBtn = document.getElementById('startBtn');
+        const resetBtn = document.getElementById('resetBtn');
+
+        startBtn.addEventListener('click', function() {
+            if (isRunning) {
+                clearInterval(timerInterval);
+                startBtn.textContent = 'Démarrer';
+            } else {
+                timerInterval = setInterval(updateTimer, 1000);
+                startBtn.textContent = 'Pause';
+            }
+            isRunning = !isRunning;
+            resetBtn.disabled = false;
+        });
+
+        resetBtn.addEventListener('click', function() {
+            clearInterval(timerInterval);
+            seconds = 5400; // Réinitialise le timer à 90 minutes
+            timerDisplay.textContent = "90:00";
+            startBtn.textContent = 'Démarrer';
+            isRunning = false;
+            resetBtn.disabled = true;
+        });
+
+        function updateTimer() {
+            // Si nous atteignons 105 minutes (6300 secondes), on arrête le timer et on passe à la deuxième période des prolongations
+            if (seconds === 6300 && isFirstExtraTime) {  // 105 minutes en secondes
+                clearInterval(timerInterval);
+                startBtn.textContent = 'Démarrer 2ème Période';
+                isFirstExtraTime = false; // Passer à la deuxième période des prolongations
+                seconds = 6300; // Fixer la minuterie à 105 minutes pour la deuxième période
+                return;
+            }
+
+            // Si nous atteignons 120 minutes (7200 secondes), on arrête le timer
+            if (seconds === 7200 && !isFirstExtraTime) {  // 120 minutes en secondes
+                clearInterval(timerInterval);
+                startBtn.textContent = 'Terminé';
+                return;
+            }
+
+            seconds++;
+            let minutes = Math.floor(seconds / 60);
+            let secs = seconds % 60;
+            timerDisplay.textContent = `${formatTime(minutes)}:${formatTime(secs)}`;
+        }
+
+        function formatTime(time) {
+            return time < 10 ? '0' + time : time;
+        }
+    </script>
+</body>
+</html>
+
+
+
+
+
+
